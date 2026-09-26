@@ -17,6 +17,9 @@ touch /var/www/html/database/database.sqlite
 # データベースのマイグレーション
 php artisan migrate --force
 
+# 初期データを投入
+php artisan db:seed --force
+
 # Laravelのキャッシュ
 php artisan config:cache
 php artisan route:cache
