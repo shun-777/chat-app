@@ -1,7 +1,6 @@
-# PHP 8.4 + FPM
 FROM php:8.4-fpm
 
-# 必要なパッケージ
+# System packages + Node.js 22
 RUN apt-get update && apt-get install -y \
     git \
     curl \
@@ -12,9 +11,10 @@ RUN apt-get update && apt-get install -y \
     libxml2-dev \
     libsqlite3-dev \
     sqlite3 \
-    nodejs \
-    npm \
     nginx \
+    ca-certificates \
+    && curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
+    && apt-get install -y nodejs \
     && docker-php-ext-install \
     pdo_sqlite \
     mbstring \
@@ -28,36 +28,34 @@ RUN apt-get update && apt-get install -y \
 # Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
-# Laravelプロジェクト
 WORKDIR /var/www/html
+
+# Application
 COPY . .
 
-# PHP依存関係
+# PHP dependencies
 RUN composer install \
     --no-dev \
     --optimize-autoloader \
     --no-interaction
 
-# JavaScript依存関係・Viteビルド
+# Frontend dependencies / build
 RUN npm install
 RUN npm run build
 
-# SQLiteファイルを作成
+# SQLite database
 RUN touch database/database.sqlite
 
-# Laravelのキャッシュ・権限
-RUN php artisan config:clear \
-    && php artisan route:clear \
-    && php artisan view:clear \
-    && chown -R www-data:www-data storage bootstrap/cache database
+# Laravel permissions
+RUN chown -R www-data:www-data storage bootstrap/cache database
 
-# Nginx設定
+# Nginx
 COPY docker/nginx.conf /etc/nginx/conf.d/default.conf
 
-# 起動スクリプト
+# Startup script
 COPY docker/start.sh /start.sh
 RUN chmod +x /start.sh
 
-EXPOSE 80
+EXPOSE 10000
 
 CMD ["/start.sh"]
