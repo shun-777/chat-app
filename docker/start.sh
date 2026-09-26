@@ -11,7 +11,6 @@ php artisan migrate --force
 # Laravelのキャッシュ
 php artisan config:cache
 php artisan route:cache
-php artisan view:cache
 
 # PHP-FPMをバックグラウンドで起動
 php-fpm -D
