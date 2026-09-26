@@ -2,6 +2,10 @@
 
 set -e
 
+mkdir -p /var/www/html/storage/framework/cache
+mkdir -p /var/www/html/storage/framework/sessions
+mkdir -p /var/www/html/storage/framework/views
+
 # SQLiteデータベースを作成
 touch /var/www/html/database/database.sqlite
 
